@@ -1,7 +1,7 @@
 {
     "name": "craftphp/mini-framework",
     "description": "This is core of CraftPHP mini framework",
-    "type": "project",
+    "type": "library",
     "license": "MIT",
     "require": {
         "php": ">=7.1",

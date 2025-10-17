@@ -133,7 +133,9 @@ $app->bootWeb(); // Boot web routes
 
 - Well done! You can start building your application.
 
-**Note**: 
+**Note**: Some other classes of the framework also require specific directory paths:
+- `Craft\Application\View`: Uses `ROOT_DIR . 'resource/views/'` as the default views directory.
+- `Source` class: Uses `ROOT_DIR . 'source/'` as the default source directory.
 
 2. With CraftPHP mini skeleton, you can create a new project and frame:
 

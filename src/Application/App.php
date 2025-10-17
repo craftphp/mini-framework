@@ -23,7 +23,7 @@ class App
      * Version of Craft Framework (Mini edition).
      * @var string
      */
-    public const version = '0.1.20251015-mini+dev';
+    public const version = '0.1.20250922-mini+dev';
 
     /**
      * Application environment
@@ -36,6 +36,18 @@ class App
      * @var bool
      */
     private static $debug = true;
+
+    /**
+     * Constructor for App class to determine ROOT_DIR and INDEX_DIR
+     * 
+     * @throws Exception if ROOT_DIR or INDEX_DIR are not defined
+     */
+    public function __construct()
+    {
+        if (!defined('ROOT_DIR') || !defined('INDEX_DIR')) {
+            throw new Exception('ROOT_DIR and INDEX_DIR must be defined before initializing the App.');
+        }
+    }
 
     /**
      * Initialize application configuration
@@ -106,8 +118,9 @@ class App
 
     /**
      * Set maintenance mode if enabled in environment variables
+     * @param bool $noEnv Not read from env, always enable maintenance
      */
-    private static function setMaintenanceMode(): void
+    public static function setMaintenanceMode($noEnv = false): void
     {
         if (headers_sent()) {
             return;
@@ -121,9 +134,16 @@ class App
             return;
         }
 
-        $maintenanceMode = env('MAINTENANCE_MODE', 'false');
-        $startTime = env('MAINTENANCE_START_TIME', null);
-        $endTime = env('MAINTENANCE_END_TIME', null);
+        // Nếu $noEnv = true, luôn bật bảo trì
+        if ($noEnv === true) {
+            $maintenanceMode = true;
+            $startTime = null;
+            $endTime = null;
+        } else {
+            $maintenanceMode = env('MAINTENANCE_MODE', 'false');
+            $startTime = env('MAINTENANCE_START_TIME', null);
+            $endTime = env('MAINTENANCE_END_TIME', null);
+        }
         $currentTime = time();
 
         if ($endTime && $currentTime > (int) $endTime) {
@@ -377,6 +397,13 @@ class App
     public static function initializeWeb(?string $logDir = null)
     {
         try {
+            
+            // Initialize error reporting with validation
+            if ($logDir) {
+                self::initializeErrorReporting($logDir);
+            } else {
+                self::initializeErrorReporting();
+            }
 
             // Load environment variables
             self::loadEnvironmentVariables();
@@ -410,11 +437,6 @@ class App
 
             // Start session with security
             Session::start();
-
-            // Initialize error reporting with validation
-            if ($logDir) {
-                self::initializeErrorReporting($logDir);
-            }
 
             // Validate required environment variables for services
             self::validateServiceConfig();

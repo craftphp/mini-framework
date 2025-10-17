@@ -1,5 +1,4 @@
 <?php
-// not available yet
 namespace Craft\Application;
 /**
  * #### OAuth login Google

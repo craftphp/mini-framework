@@ -28,7 +28,7 @@ $router->get('/', [App\Controller\HomeController::class, 'index']);
 $router->runInstance();
 ```
 
-**Controller:**
+**Controller and View:**
 
 ```php
 use Craft\Application\View;
@@ -43,11 +43,6 @@ class HomeController{
 ```php
 $test = new User();
 $allUsers = $test->all(); // Get all users with Mapper
-```
-
-**View:**
-```php
-echo Craft\Application\View::render('home', ['message' => 'Hello!']);
 ```
 
 **Session & Flash:**
@@ -67,16 +62,50 @@ echo Craft\Application\Session::getFlash('msg'); // Get and clear flash message
 - Open your project directory (require having `composer.json` file) and run:
 
 ```bash
-composer require crafphp/mini-framework
+composer require craftphp/mini-framework:dev-main
 ```
 
 - **Important**: Define `ROOT_DIR` (your project root directory) and `INDEX_DIR` (your public directory) in your `index.php` file:
 
 ```php
-define('ROOT_DIR', __DIR__ . '/../'); // Adjust path as needed
-define('INDEX_DIR', __DIR__ . '/'); // Adjust path as needed
+define('ROOT_DIR', __DIR__ . '/'); // The root directory of your project
+define('INDEX_DIR', __DIR__ . '/'); // The public directory of your project (where index.php is located)
 require ROOT_DIR . 'vendor/autoload.php';
+```
+- There are some environment variables that should be present in your `.env` file (create it in your project root if not exists):
+```env
+## This is the environment configuration file for the Craft PHP framework.
+# It contains sensitive information and should not be committed to version control.
+APP_URL=http://localhost:8080
+APP_NAME=MiniCraft
+APP_TIMEZONE=Asia/Ho_Chi_Minh
+APP_ENVIRONMENT=development
+APP_DEBUG=true
 
+## Maintenance mode configuration
+# Set to true to enable maintenance mode, false to disable
+MAINTENANCE_MODE=false
+# Maintenance mode time configuration
+# Set the start and end time for maintenance mode in Unix timestamp format
+MAINTENANCE_START_TIME=
+MAINTENANCE_END_TIME=
+
+## Database configuration (Used by the DatabaseManager class) [during testing]
+# Set the database driver, accept: pdo_mysql, pdo_sqlite, mysqli, sqlite3 (and more if has been added)
+DB_DRIVER=pdo_sqlite
+# Set the database design connection, only accept: mapper, builder
+# Mapper is used for ORM, Builder is used for query builder
+DB_DESIGN=builder
+
+# Database mysql configuration
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=root
+DB_PASS=
+DB_NAME=manga_reader
+
+# Database sqlite configuration
+DB_SQLITE_FILE=manga_reader
 ```
 
 - Classes like: Source, Craft error handler will using `INDEX_DIR` to find `logs` and `source` directory.
@@ -85,7 +114,17 @@ require ROOT_DIR . 'vendor/autoload.php';
 
 - Create routes handler file with your routing logic: `app/Router/web.php` and `app/Router/api.php` (if needed).
 
-- Add this to your `index.php` to start CraftMini application:
+```php
+// app/Router/web.php
+use Craft\Application\Router;
+$router = new Router();
+$router->get('/', function(){
+    return 'Hello, CraftMini!';
+});
+// Add more routes here...
+```
+
+- Add this to your `index.php` to start CraftMini application (after required Composer autoload):
 ```php
 $app = new Craft\Application\App();
 $app->initializeWeb(INDEX_DIR . '/logs'); // Initialize with log directory (need to create it first)
@@ -94,10 +133,12 @@ $app->bootWeb(); // Boot web routes
 
 - Well done! You can start building your application.
 
+**Note**: 
+
 2. With CraftPHP mini skeleton, you can create a new project and frame:
 
 ```bash
-composer create-project craftphp/mini-skeleton your-project-name
+composer create-project craftphp/mini-skeleton:dev-main your-project-name
 ```
 
 - Try to run the built-in PHP server:

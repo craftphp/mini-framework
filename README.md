@@ -108,6 +108,19 @@ DB_NAME=manga_reader
 DB_SQLITE_FILE=manga_reader
 ```
 
+- Require `.htaccess` file in your `INDEX_DIR` (public directory) to route all requests to `index.php`:
+
+```
+RewriteEngine On
+
+# If the requested file or directory exists, serve it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Otherwise, route all requests to index.php
+RewriteRule ^ index.php [QSA,L]
+```
+
 - Classes like: Source, Craft error handler will using `INDEX_DIR` to find `logs` and `source` directory.
 
 - Create `app` directory in your project root to store your application files (controllers, models, views, routes, etc).
@@ -134,7 +147,7 @@ $app->bootWeb(); // Boot web routes
 - Well done! You can start building your application.
 
 **Note**: Some other classes of the framework also require specific directory paths:
-- `Craft\Application\View`: Uses `ROOT_DIR . 'resource/views/'` as the default views directory.
+- `Craft\Application\View`: Uses `ROOT_DIR . 'resource/view/'` as the default views directory.
 - `Source` class: Uses `ROOT_DIR . 'source/'` as the default source directory.
 
 2. With CraftPHP mini skeleton, you can create a new project and frame:

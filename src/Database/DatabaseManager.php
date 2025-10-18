@@ -1,5 +1,4 @@
 <?php
-
 namespace Craft\Database;
 
 use Craft\Database\Adapter\MysqliAdapter;

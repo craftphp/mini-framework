@@ -45,7 +45,7 @@ class App
     public function __construct()
     {
         if (!defined('ROOT_DIR') || !defined('INDEX_DIR')) {
-            throw new Exception('ROOT_DIR and INDEX_DIR must be defined before initializing the App.');
+            throw new Exception('ROOT_DIR and INDEX_DIR must be defined before initializing CraftPHP Framework.');
         }
     }
 
@@ -310,7 +310,6 @@ class App
             throw new Exception('TinyEnv is not installed. Please run "composer require datahihi1/tiny-env"');
         }
         $env = new TinyEnv(ROOT_DIR);
-        $env->envfiles(['.env', '.env.test']);
         $env->load();
     }
 
@@ -326,7 +325,7 @@ class App
             ini_set('display_errors', '0');
             ini_set('display_startup_errors', '0');
             ini_set('log_errors', '1');
-            ini_set('error_log', ROOT_DIR . 'public/logs/php_errors.log');
+            ini_set('error_log', INDEX_DIR . 'logs/php_errors.log');
         } else {
             error_reporting(E_ALL);
             ini_set('display_errors', '0');
@@ -346,24 +345,6 @@ class App
             $timezone = 'UTC';
         }
         date_default_timezone_set($timezone);
-    }
-
-    /**
-     * Validate database configuration (optional)
-     * 
-     * @return void
-     */
-    private static function validateDatabaseConfig()
-    {
-        if (env('DB_HOST') && env('DB_NAME')) {
-            $host = env('DB_HOST');
-            $dbname = env('DB_NAME');
-            $username = env('DB_USER');
-            $password = env('DB_PASS');
-            if (!$host || !$dbname || !$username) {
-                throw new Exception('Incomplete database configuration');
-            }
-        }
     }
 
     /**
@@ -397,7 +378,7 @@ class App
     public static function initializeWeb(?string $logDir = null)
     {
         try {
-            
+
             // Initialize error reporting with validation
             if ($logDir) {
                 self::initializeErrorReporting($logDir);
@@ -440,16 +421,13 @@ class App
 
             // Validate required environment variables for services
             self::validateServiceConfig();
-
-            // Validate database configuration (optional)
-            // self::validateDatabaseConfig();
         } catch (Exception $e) {
             if (self::isDebug()) {
                 self::initializeErrorReporting(INDEX_DIR . 'logs/');
                 throw $e;
             }
         }
-        
+
         return new self();
     }
 

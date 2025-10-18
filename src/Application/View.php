@@ -30,8 +30,11 @@ class View
         $viewPath = $viewPath ?? ($config['view_path'] ?? ROOT_DIR . 'resource/view/');
         $this->viewPath = rtrim($viewPath, '/');
         $this->engine = $config['engine'] ?? 'php';
-        
-        if ($this->engine !== 'php' && isset($config['drives'][$this->engine]['class'])) {
+
+        // Chỉ khởi tạo engine nếu SUPPORT_VIEW_ENGINE là enable
+        if (env('SUPPORT_VIEW_ENGINE') === 'enable'
+            && $this->engine !== 'php'
+            && isset($config['drives'][$this->engine]['class'])) {
             $class = $config['drives'][$this->engine]['class'];
             $options = $config['drives'][$this->engine]['options'] ?? [];
             if (class_exists($class)) {
@@ -67,10 +70,22 @@ class View
             if (strpos($view, '.') !== false) {
                 $view = str_replace('.', '/', $view);
             }
-            $filePath = $this->viewPath . '/' . $view . '.php';
-            if (!file_exists($filePath)) {
-                throw new Exception("View file not found: " . $filePath);
+
+            // List of supported extensions
+            $extensions = ['.php', '.blade.php', '.twig', '.tpl', '.html', '.htm'];
+            $filePath = null;
+            foreach ($extensions as $ext) {
+                $tryPath = $this->viewPath . '/' . $view . $ext;
+                if (file_exists($tryPath)) {
+                    $filePath = $tryPath;
+                    break;
+                }
             }
+
+            if (!$filePath) {
+                throw new Exception("View file not found: " . $this->viewPath . '/' . $view . '.[php/blade.php/twig/tpl/html/htm]');
+            }
+
             extract($data);
             ob_start();
             require $filePath;
@@ -104,6 +119,18 @@ class View
             echo "Error $statusCode: " . http_response_code($statusCode);
         }
         exit();
+    }
+
+    /**
+     * Include
+     * @param string $view The partial view name (without .php)
+     * @param array $data Optional data to pass to the partial
+     * @return string
+     */
+    public static function include($view, $data = [])
+    {
+        $instance = new self();
+        return $instance->view($view, $data);
     }
 }
 #endregion
